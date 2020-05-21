@@ -1,6 +1,6 @@
-name: "Create DNS Record"
+name: "CloudFlare Create DNS Record"
 description: "Creates a new CloudFlare DNS record"
-author: "Kriasoft"
+author: "InfraWay"
 
 inputs:
   type:
