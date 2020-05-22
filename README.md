@@ -13,11 +13,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: kriasoft/create-dns-record@v1
+      - uses: infraway/create-dns-record@v1
         with:
-          type: "CNAME"
-          name: "{PR}-review.example.com"
-          content: "example.com"
+          type: "A"
+          name: "review.example.com"
+          content: "10.10.10.10"
           ttl: 1
           proxied: true
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
