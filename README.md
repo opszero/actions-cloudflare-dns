@@ -35,7 +35,7 @@ docker run -it --rm \
   -e "INPUT_CONTENT=10.10.10.10" \
   -e "INPUT_TTL=3600" \
   -e "INPUT_PROXIED=true" \
-  infraway/create-dns-record 
+  infraway/cloudflare-create-dns-record 
 ```
 
 ## License
