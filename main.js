@@ -33,7 +33,7 @@ const getCurrentRecordId = () => {
   }
 
   return record.id;
-}
+};
 
 const createRecord = () => {
   // https://api.cloudflare.com/#dns-records-for-a-zone-create-dns-record
@@ -66,10 +66,10 @@ const createRecord = () => {
 
   console.log(`::set-output name=id::${result.id}`);
   console.log(`::set-output name=name::${result.name}`);
-}
+};
 
 const updateRecord = (id) => {
-  console.log(`Record exists with ${id}, updating...`)
+  console.log(`Record exists with ${id}, updating...`);
   // https://api.cloudflare.com/#dns-records-for-a-zone-update-dns-record
   const { status, stdout } = cp.spawnSync("curl", [
     ...["--request", "PUT"],
