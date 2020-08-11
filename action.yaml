@@ -25,7 +25,6 @@ inputs:
     required: true
 
 outputs:
-  id:
   name:
 
 runs:
