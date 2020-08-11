@@ -24,9 +24,6 @@ inputs:
     default: "CloudFlare zone"
     required: true
 
-outputs:
-  name:
-
 runs:
   using: "node12"
   main: "main.js"
