@@ -33,5 +33,5 @@ runs:
   main: "main.js"
 
 branding:
-  icon: "globe"
-  color: "green"
+  icon: "cloud"
+  color: "orange"
