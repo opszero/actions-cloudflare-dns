@@ -19,12 +19,13 @@ jobs:
         with:
           type: "A"
           name: "review.example.com"
-          content: "10.10.10.10"
+          content: "8.8.8.8"
           ttl: 1
           proxied: true
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
           zone: ${{ secrets.CLOUDFLARE_ZONE }}
 ```
+* Use full qualified domain name to update if it exist.
 
 ## License
 
