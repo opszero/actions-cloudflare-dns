@@ -25,7 +25,7 @@ jobs:
           token: ${{ secrets.CLOUDFLARE_TOKEN }}
           zone: ${{ secrets.CLOUDFLARE_ZONE }}
 ```
-* Use full qualified domain name to update if it exist.
+* Use full qualified domain name to update if it exist*
 
 ## License
 
