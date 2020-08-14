@@ -1,5 +1,5 @@
-name: "CloudFlare Create DNS Record"
-description: "Creates a new CloudFlare DNS record"
+name: "CloudFlare DNS Management"
+description: "Creates and updates  CloudFlare DNS records"
 author: "rez0n"
 
 inputs:
