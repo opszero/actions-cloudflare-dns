@@ -1,6 +1,6 @@
 name: "CloudFlare Create DNS Record"
 description: "Creates a new CloudFlare DNS record"
-author: "InfraWay"
+author: "rez0n"
 
 inputs:
   type:
@@ -23,7 +23,11 @@ inputs:
   zone:
     default: "CloudFlare zone"
     required: true
-
+outputs:
+  record_id:
+    description: "Record ID"
+  name:
+    description: 'Affected domain name'
 runs:
   using: "node12"
   main: "main.js"
