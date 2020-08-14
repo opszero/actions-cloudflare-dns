@@ -47,7 +47,7 @@ const createRecord = () => {
       name: process.env.INPUT_NAME,
       content: process.env.INPUT_CONTENT,
       ttl: Number(process.env.INPUT_TTL),
-      proxied: Boolean(process.env.INPUT_PROXIED),
+      proxied: process.env.INPUT_PROXIED,
     }),
     `https://api.cloudflare.com/client/v4/zones/${process.env.INPUT_ZONE}/dns_records`,
   ]);
@@ -55,7 +55,6 @@ const createRecord = () => {
   if (status !== 0) {
     process.exit(status);
   }
-
   const { success, result, errors } = JSON.parse(stdout.toString());
 
   if (!success) {
@@ -81,7 +80,7 @@ const updateRecord = (id) => {
       name: process.env.INPUT_NAME,
       content: process.env.INPUT_CONTENT,
       ttl: Number(process.env.INPUT_TTL),
-      proxied: Boolean(process.env.INPUT_PROXIED),
+      proxied: process.env.INPUT_PROXIED,
     }),
     `https://api.cloudflare.com/client/v4/zones/${process.env.INPUT_ZONE}/dns_records/${id}`,
   ]);
