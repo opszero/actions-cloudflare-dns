@@ -6,12 +6,15 @@
 const path = require("path");
 const cp = require("child_process");
 
+const core = require('@actions/core');
+const github = require('@actions/github');
+
 const getCurrentRecordId = () => {
   //https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
   const { status, stdout } = cp.spawnSync("curl", [
-    ...["--header", `Authorization: Bearer ${process.env.INPUT_TOKEN}`],
+    ...["--header", `Authorization: Bearer ${core.getInput('token')}`],
     ...["--header", "Content-Type: application/json"],
-    `https://api.cloudflare.com/client/v4/zones/${process.env.INPUT_ZONE}/dns_records`,
+    `https://api.cloudflare.com/client/v4/zones/${core.getInput('zone')}/dns_records`,
   ]);
 
   if (status !== 0) {
@@ -25,8 +28,8 @@ const getCurrentRecordId = () => {
     process.exit(1);
   }
 
-  const name = process.env.INPUT_NAME;
-  const record = result.find((x) => x.name === name);
+  const name = core.getInput('name');
+  const record = result.find((x) => x.name == `${name}.${x.zone_name}`);
 
   if (!record) {
     return null
@@ -39,17 +42,17 @@ const createRecord = () => {
   // https://api.cloudflare.com/#dns-records-for-a-zone-create-dns-record
   const { status, stdout } = cp.spawnSync("curl", [
     ...["--request", "POST"],
-    ...["--header", `Authorization: Bearer ${process.env.INPUT_TOKEN}`],
+    ...["--header", `Authorization: Bearer ${core.getInput('token')}`],
     ...["--header", "Content-Type: application/json"],
     ...["--silent", "--data"],
     JSON.stringify({
-      type: process.env.INPUT_TYPE,
-      name: process.env.INPUT_NAME,
-      content: process.env.INPUT_CONTENT,
-      ttl: Number(process.env.INPUT_TTL),
-      proxied: process.env.INPUT_PROXIED == "true",
+      type: core.getInput('type'),
+      name: core.getInput('name'),
+      content: core.getInput('content'),
+      ttl: Number(core.getInput('ttl')),
+      proxied: core.getInput('proxied') == "true",
     }),
-    `https://api.cloudflare.com/client/v4/zones/${process.env.INPUT_ZONE}/dns_records`,
+    `https://api.cloudflare.com/client/v4/zones/${core.getInput('zone')}/dns_records`,
   ]);
 
   if (status !== 0) {
@@ -72,17 +75,17 @@ const updateRecord = (id) => {
   // https://api.cloudflare.com/#dns-records-for-a-zone-update-dns-record
   const { status, stdout } = cp.spawnSync("curl", [
     ...["--request", "PUT"],
-    ...["--header", `Authorization: Bearer ${process.env.INPUT_TOKEN}`],
+    ...["--header", `Authorization: Bearer ${core.getInput('token')}`],
     ...["--header", "Content-Type: application/json"],
     ...["--silent", "--data"],
     JSON.stringify({
-      type: process.env.INPUT_TYPE,
-      name: process.env.INPUT_NAME,
-      content: process.env.INPUT_CONTENT,
-      ttl: Number(process.env.INPUT_TTL),
-      proxied: process.env.INPUT_PROXIED == "true",
+      type: core.getInput('type'),
+      name: core.getInput('name'),
+      content: core.getInput('content'),
+      ttl: Number(core.getInput('ttl')),
+      proxied: core.getInput('proxied') == "true",
     }),
-    `https://api.cloudflare.com/client/v4/zones/${process.env.INPUT_ZONE}/dns_records/${id}`,
+    `https://api.cloudflare.com/client/v4/zones/${core.getInput('zone')}/dns_records/${id}`,
   ]);
 
   if (status !== 0) {
@@ -101,9 +104,14 @@ const updateRecord = (id) => {
   console.log(`::set-output name=name::${result.name}`);
 }
 
-const id = getCurrentRecordId();
-if (id) {
-  updateRecord(id);
-  process.exit(0);
+try {
+  const id = getCurrentRecordId();
+  if (id) {
+    updateRecord(id);
+  } else {
+    createRecord();
+  }
+} catch(err) {
+  core.setFailed(`Action failed with error ${err}`);
 }
-createRecord();
+
