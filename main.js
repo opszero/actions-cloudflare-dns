@@ -31,7 +31,8 @@ const getCurrentRecordId = () => {
   const name = core.getInput('name');
   const record = result.find((x) => x.id === name);
 
-  console.log(record)
+  console.log(result)
+  console.log(result[0].id)
 
   if (!record) {
     return null
