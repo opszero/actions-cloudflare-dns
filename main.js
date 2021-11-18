@@ -29,7 +29,7 @@ const getCurrentRecordId = () => {
   }
 
   const name = core.getInput('name');
-  const record = result.find((x) => x.name === name);
+  const record = result.find((x) => x.zone_name === name);
 
   console.log(result)
 
@@ -106,10 +106,14 @@ const updateRecord = (id) => {
   console.log(`::set-output name=name::${result.name}`);
 }
 
-const id = getCurrentRecordId();
-console.log(id)
-if (id) {
-  updateRecord(id);
-  process.exit(0);
+try {
+  const id = getCurrentRecordId();
+  if (id) {
+    updateRecord(id);
+  } else {
+    createRecord();
+  }
+} catch(err) {
+  core.setFailed(`Action failed with error ${err}`);
 }
-createRecord();
+
