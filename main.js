@@ -30,7 +30,7 @@ const getCurrentRecordId = () => {
 
   const name = core.getInput('name');
   const record = result.find((x) => x.zone_name === name);
-  console.log(result)
+  console.log(result[0])
 
   console.log(record)
 
