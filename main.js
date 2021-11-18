@@ -29,7 +29,8 @@ const getCurrentRecordId = () => {
   }
 
   const name = core.getInput('name');
-  const record = result.find((x) => x.id === name);
+  const name = core.getInput('name');
+  const record = result.find((x) => x.name == `${name}.${x.zone_name}`);
 
   console.log(result)
   console.log(result[0].id)
