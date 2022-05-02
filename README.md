@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: rez0n/create-dns-record@v2.1
+      - uses: opszero/actions-cloudflare-dnsv2.1
         with:
           type: "A"
           name: "review.example.com"
