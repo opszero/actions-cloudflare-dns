@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: opszero/actions-cloudflare-dnsv2.1
+      - uses: opszero/actions-cloudflare-dns@v2.2
         with:
           type: "A"
           name: "review.example.com"
