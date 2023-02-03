@@ -100,8 +100,8 @@ const updateRecord = (id) => {
     process.exit(1);
   }
 
-  console.log(`::set-output name=record_id::${result.id}`);
-  console.log(`::set-output name=name::${result.name}`);
+  core.setOutput("record_id", result.id);
+  core.setOutput("name", result.name)
 }
 
 try {
