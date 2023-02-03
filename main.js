@@ -31,6 +31,8 @@ const getCurrentRecordId = () => {
   const name = core.getInput('name');
   const record = result.find((x) => x.name == `${name}.${x.zone_name}`);
 
+  console.log("Lo", record)
+
   if (!record) {
     return null
   }
@@ -111,7 +113,7 @@ try {
   } else {
     createRecord();
   }
-} catch(err) {
+} catch (err) {
   core.setFailed(`Action failed with error ${err}`);
 }
 
