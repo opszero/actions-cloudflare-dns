@@ -23,7 +23,6 @@ const getCurrentRecordId = () => {
 
   const { success, result, errors } = JSON.parse(stdout.toString());
 
-  console.log("Lo", result)
 
   if (!success) {
     console.log(`::error ::${errors[0].message}`);
@@ -33,6 +32,7 @@ const getCurrentRecordId = () => {
   const name = core.getInput('name');
   const record = result.find((x) => x.name == `${name}.${x.zone_name}`);
 
+  console.log("Lo", record)
 
   if (!record) {
     return null
