@@ -1,6 +1,6 @@
-# Create DNS Record Action for GitHub
+# actions-cloudflare-dns
 
-Creates a new CloudFlare DNS record.
+Create and update Cloudlare DNS records
 
 ## Usage via Github Actions
 
@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: opszero/actions-cloudflare-dns@v2.2
+      - uses: opszero/actions-cloudflare-dns@v3.0.2
         with:
           type: "A"
           name: "review.example.com"
