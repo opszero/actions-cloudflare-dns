@@ -1,4 +1,4 @@
-name: "Update Cloudflare DNS Records"
+name: "Update Cloudflare DNS Records by opsZero"
 description: "Creates and update Cloudflare DNS records"
 author: "opszero"
 
