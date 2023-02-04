@@ -1,6 +1,6 @@
-name: "CloudFlare DNS Management"
-description: "Creates and updates  CloudFlare DNS records"
-author: "rez0n"
+name: "Update Cloudflare DNS Records"
+description: "Creates and update Cloudflare DNS records"
+author: "opszero"
 
 inputs:
   type:
@@ -29,9 +29,9 @@ outputs:
   name:
     description: 'Affected domain name'
 runs:
-  using: "node12"
+  using: "node16"
   main: "main.js"
 
 branding:
   icon: "cloud"
-  color: "orange"
+  color: "gray-dark"
