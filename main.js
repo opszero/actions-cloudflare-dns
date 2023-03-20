@@ -71,29 +71,11 @@ const createRecord = () => {
 };
 
 const updateRecord = (id) => {
-  // Check if record exists
-  const { status: checkStatus, stdout: checkOutput } = cp.spawnSync("curl", [
-    ...["--request", "GET"],
-    ...["--header", `Authorization: Bearer ${core.getInput('token')}`],
-    `https://api.cloudflare.com/client/v4/zones/${core.getInput('zone')}/dns_records/${id}`,
-  ]);
-
-  if (checkStatus !== 0) {
-    process.exit(checkStatus);
-  }
-
-  const { success: checkSuccess } = JSON.parse(checkOutput.toString());
-
-  if (!checkSuccess) {
-    console.log(`Record with id ${id} does not exist, skipping update.`);
-    return;
-  }
-
   console.log(`Record exists with ${id}, updating...`);
+  // https://api.cloudflare.com/#dns-records-for-a-zone-update-dns-record
 
-  // Update record
   const { status, stdout } = cp.spawnSync("curl", [
-    ...["--request", "PUT"],
+    ...["--request", "PATCH"],
     ...["--header", `Authorization: Bearer ${core.getInput('token')}`],
     ...["--header", "Content-Type: application/json"],
     ...["--silent", "--data"],
