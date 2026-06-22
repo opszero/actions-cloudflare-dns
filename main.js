@@ -6,55 +6,70 @@
 const path = require("path");
 const cp = require("child_process");
 
+const core = require('@actions/core');
+const github = require('@actions/github');
+
 const getCurrentRecordId = () => {
-  //https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
-  const { status, stdout } = cp.spawnSync("curl", [
-    ...["--header", `Authorization: Bearer ${process.env.INPUT_TOKEN}`],
-    ...["--header", "Content-Type: application/json"],
-    `https://api.cloudflare.com/client/v4/zones/${process.env.INPUT_ZONE}/dns_records`,
-  ]);
+  let page = 1;
+  const perPage = 100;
 
-  if (status !== 0) {
-    process.exit(status);
+  while (true) {
+    const { status, stdout } = cp.spawnSync("curl", [
+      "--silent",
+      "--header", `Authorization: Bearer ${core.getInput('token')}`,
+      "--header", "Content-Type: application/json",
+      `https://api.cloudflare.com/client/v4/zones/${core.getInput('zone')}/dns_records?per_page=${perPage}&page=${page}`,
+    ]);
+
+    if (status !== 0) {
+      process.exit(status);
+    }
+
+    const { success, result, result_info, errors } = JSON.parse(stdout.toString());
+
+    if (!success) {
+      console.log(`::error ::${errors[0].message}`);
+      process.exit(1);
+    }
+
+    const name = core.getInput('name');
+    const record = result.find((x) => x.name === name);
+
+    if (record) {
+      return record.id;
+    }
+
+    const totalPages = Math.ceil(result_info.total_count / perPage);
+    if (page >= totalPages) {
+      break;
+    }
+    page++;
   }
 
-  const { success, result, errors } = JSON.parse(stdout.toString());
-
-  if (!success) {
-    console.log(`::error ::${errors[0].message}`);
-    process.exit(1);
-  }
-
-  const name = process.env.INPUT_NAME;
-  const record = result.find((x) => x.name === name);
-
-  if (!record) {
-    return null
-  }
-
-  return record.id;
+  return null;
 };
 
 const createRecord = () => {
   // https://api.cloudflare.com/#dns-records-for-a-zone-create-dns-record
   const { status, stdout } = cp.spawnSync("curl", [
     ...["--request", "POST"],
-    ...["--header", `Authorization: Bearer ${process.env.INPUT_TOKEN}`],
+    ...["--header", `Authorization: Bearer ${core.getInput('token')}`],
     ...["--header", "Content-Type: application/json"],
     ...["--silent", "--data"],
     JSON.stringify({
-      type: process.env.INPUT_TYPE,
-      name: process.env.INPUT_NAME,
-      content: process.env.INPUT_CONTENT,
-      ttl: Number(process.env.INPUT_TTL),
-      proxied: process.env.INPUT_PROXIED == "true",
+      type: core.getInput('type'),
+      name: core.getInput('name'),
+      content: core.getInput('content'),
+      ttl: Number(core.getInput('ttl')),
+      proxied: core.getInput('proxied') == "true",
     }),
-    `https://api.cloudflare.com/client/v4/zones/${process.env.INPUT_ZONE}/dns_records`,
+    `https://api.cloudflare.com/client/v4/zones/${core.getInput('zone')}/dns_records`,
   ]);
 
   if (status !== 0) {
     process.exit(status);
   }
+
   const { success, result, errors } = JSON.parse(stdout.toString());
 
   if (!success) {
@@ -68,42 +83,10 @@ const createRecord = () => {
 };
 
 const updateRecord = (id) => {
-  console.log(`Record exists with ${id}, updating...`);
-  // https://api.cloudflare.com/#dns-records-for-a-zone-update-dns-record
+  console.log(`Updating existing record with id ${id}...`);
+
   const { status, stdout } = cp.spawnSync("curl", [
-    ...["--request", "PUT"],
-    ...["--header", `Authorization: Bearer ${process.env.INPUT_TOKEN}`],
-    ...["--header", "Content-Type: application/json"],
-    ...["--silent", "--data"],
-    JSON.stringify({
-      type: process.env.INPUT_TYPE,
-      name: process.env.INPUT_NAME,
-      content: process.env.INPUT_CONTENT,
-      ttl: Number(process.env.INPUT_TTL),
-      proxied: process.env.INPUT_PROXIED == "true",
-    }),
-    `https://api.cloudflare.com/client/v4/zones/${process.env.INPUT_ZONE}/dns_records/${id}`,
-  ]);
-
-  if (status !== 0) {
-    process.exit(status);
-  }
-
-  const { success, result, errors } = JSON.parse(stdout.toString());
-
-  if (!success) {
-    console.dir(errors[0]);
-    console.log(`::error ::${errors[0].message}`);
-    process.exit(1);
-  }
-
-  console.log(`::set-output name=record_id::${result.id}`);
-  console.log(`::set-output name=name::${result.name}`);
-}
-
-const id = getCurrentRecordId();
-if (id) {
-  updateRecord(id);
-  process.exit(0);
-}
-createRecord();
+    "--request", "PATCH",
+    "--header", `Authorization: Bearer ${core.getInput('token')}`,
+    "--header", "Content-Type: application/json",
+    "--silent", "--data",
