@@ -10,32 +10,43 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 
 const getCurrentRecordId = () => {
-  //https://api.cloudflare.com/#dns-records-for-a-zone-list-dns-records
-  const { status, stdout } = cp.spawnSync("curl", [
-    ...["--header", `Authorization: Bearer ${core.getInput('token')}`],
-    ...["--header", "Content-Type: application/json"],
-    `https://api.cloudflare.com/client/v4/zones/${core.getInput('zone')}/dns_records`,
-  ]);
+  let page = 1;
+  const perPage = 100;
 
-  if (status !== 0) {
-    process.exit(status);
+  while (true) {
+    const { status, stdout } = cp.spawnSync("curl", [
+      "--silent",
+      "--header", `Authorization: Bearer ${core.getInput('token')}`,
+      "--header", "Content-Type: application/json",
+      `https://api.cloudflare.com/client/v4/zones/${core.getInput('zone')}/dns_records?per_page=${perPage}&page=${page}`,
+    ]);
+
+    if (status !== 0) {
+      process.exit(status);
+    }
+
+    const { success, result, result_info, errors } = JSON.parse(stdout.toString());
+
+    if (!success) {
+      console.log(`::error ::${errors[0].message}`);
+      process.exit(1);
+    }
+
+    const name = core.getInput('name');
+    const record = result.find((x) => x.name === name);
+
+    if (record) {
+      return record.id;
+    }
+
+    const totalPages = Math.ceil(result_info.total_count / perPage);
+    if (page >= totalPages) {
+      break;
+    }
+    page++;
   }
 
-  const { success, result, errors } = JSON.parse(stdout.toString());
-
-  if (!success) {
-    console.log(`::error ::${errors[0].message}`);
-    process.exit(1);
-  }
-
-  const name = core.getInput('name');
-  const record = result.find((x) => x.name == name);
-
-  if (!record) {
-    return null
-  }
-
-  return record.id;
+  return null;
 };
 
 const createRecord = () => {
@@ -58,6 +69,7 @@ const createRecord = () => {
   if (status !== 0) {
     process.exit(status);
   }
+
   const { success, result, errors } = JSON.parse(stdout.toString());
 
   if (!success) {
@@ -71,6 +83,13 @@ const createRecord = () => {
 };
 
 const updateRecord = (id) => {
+  console.log(`Updating existing record with id ${id}...`);
+
+  const { status, stdout } = cp.spawnSync("curl", [
+    "--request", "PATCH",
+    "--header", `Authorization: Bearer ${core.getInput('token')}`,
+    "--header", "Content-Type: application/json",
+    "--silent", "--data",
   console.log(`Checking if record with id ${id} exists...`);
   // https://api.cloudflare.com/#dns-records-for-a-zone-get-dns-record
   const { getStatus, getStdout } = cp.spawnSync("curl", [
